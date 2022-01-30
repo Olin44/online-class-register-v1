@@ -1,5 +1,6 @@
 package pl.olin44.onlineclassregister.applicationlayer;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,7 +18,7 @@ public class CreatePersonController {
     }
 
     @PostMapping(value = "/students")
-    public ResponseEntity<String> createPerson(@RequestBody CreatePersonCommand createPersonCommand) {
+    public ResponseEntity<String> createPerson(@RequestBody @Valid CreatePersonCommand createPersonCommand) {
         createPersonService.create(createPersonCommand);
         return ResponseEntity.status(HttpStatus.OK)
                 .body("Person created");

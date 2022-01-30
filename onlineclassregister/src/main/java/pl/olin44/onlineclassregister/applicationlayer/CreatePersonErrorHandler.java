@@ -1,33 +1,48 @@
 package pl.olin44.onlineclassregister.applicationlayer;
 
-import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import pl.olin44.onlineclassregister.domain.IllegalFieldValueError;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
-@ControllerAdvice(basePackageClasses={CreatePersonController.class})
-public class CreatePersonErrorHandler {
+@ControllerAdvice
+public class CreatePersonErrorHandler extends ResponseEntityExceptionHandler {
 
     private static final String EXCEPTION_TIME_FORMAT = "dd-MM-yyyy HH:mm:ss";
-
-    @ExceptionHandler({ IllegalArgumentException.class})
-    public ResponseEntity<IllegalFieldValueError> handleException(
-            IllegalArgumentException ex, HttpServletRequest request) {
-        return new ResponseEntity<>(createError(ex, request), HttpStatus.CONFLICT);
-
-    }
-
-    private IllegalFieldValueError createError(IllegalArgumentException ex, HttpServletRequest request) {
-        return new IllegalFieldValueError(ex.getMessage(), getTime(),request.getRequestURI());
-    }
 
     private String getTime() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(EXCEPTION_TIME_FORMAT);
         return formatter.format(LocalDateTime.now());
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException methodArgumentNotValidException,
+            HttpHeaders headers,
+            HttpStatus status,
+            WebRequest request) {
+        List<IllegalFieldValues.FieldError> errors = new ArrayList<>();
+        for (FieldError error : methodArgumentNotValidException.getBindingResult().getFieldErrors()) {
+            errors.add(createFieldError(error.getField(), error.getDefaultMessage()));
+        }
+        for (ObjectError error : methodArgumentNotValidException.getBindingResult().getGlobalErrors()) {
+            errors.add(createFieldError(error.getObjectName(), error.getDefaultMessage()));
+        }
+
+        return handleExceptionInternal(methodArgumentNotValidException, errors, headers, HttpStatus.CONFLICT, request);
+    }
+
+    private IllegalFieldValues.FieldError createFieldError(String field, String defaultMessage) {
+        return new IllegalFieldValues.FieldError(field, defaultMessage);
     }
 }

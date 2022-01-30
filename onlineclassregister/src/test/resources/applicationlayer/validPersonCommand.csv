@@ -1,0 +1,3 @@
+firstName,secondName,surname,birthDate,gender,phoneNumber,email
+Name,SecondName,Surname,12-12-2021,MALE,123456789,email@email.com
+Name,,Surname,12-12-2021,MALE,123456789,email@email.com

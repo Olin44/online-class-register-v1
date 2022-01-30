@@ -1,9 +1,6 @@
 package pl.olin44.onlineclassregister.peristence;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import pl.olin44.onlineclassregister.domain.Gender;
 
 import java.time.LocalDate;
@@ -14,12 +11,25 @@ public class PersonEntity {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
+
+    @Basic(optional = false)
+    @Column(nullable = false)
     private String firstName;
     private String secondName;
+    @Basic(optional = false)
+    @Column(nullable = false)
     private String surname;
+    @Basic(optional = false)
+    @Column(nullable = false)
     private LocalDate birthDate;
+    @Basic(optional = false)
+    @Column(nullable = false)
     private Gender gender;
+    @Basic(optional = false)
+    @Column(nullable = false)
     private String phoneNumber;
+    @Basic(optional = false)
+    @Column(nullable = false)
     private String email;
 
     public PersonEntity() {

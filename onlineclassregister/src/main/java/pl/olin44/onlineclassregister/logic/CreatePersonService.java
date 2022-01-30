@@ -1,5 +1,6 @@
 package pl.olin44.onlineclassregister.logic;
 
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import pl.olin44.onlineclassregister.applicationlayer.CreatePersonCommand;
 import pl.olin44.onlineclassregister.domain.Person;
@@ -17,10 +18,10 @@ public class CreatePersonService {
 
     public void create(CreatePersonCommand createPersonCommand){
         Person person = toDomain(createPersonCommand);
-        if(isNotUniquePerson(person)) {
+        PersonEntity personEntity = toEntity(person);
+        if (isNotUniquePerson(personEntity)) {
             throw new IllegalArgumentException("Person with that data already exist");
         }
-        PersonEntity personEntity = toEntity(person);
         personRepository.save(personEntity);
     }
 
@@ -45,15 +46,8 @@ public class CreatePersonService {
                 createPersonCommand.email());
     }
 
-    private boolean isNotUniquePerson(Person person) {
-        return personRepository.findByFirstNameAndSecondNameAndSurnameAndBirthDateAndGenderAndPhoneNumberAndEmail(
-                person.getFirstName(),
-                person.getSecondName(),
-                person.getSurname(),
-                person.getBirthDate().getBirthDate(),
-                person.getGender(),
-                person.getPhoneNumber().getPhoneNumber(),
-                person.getEmail().getEmail())
+    private boolean isNotUniquePerson(PersonEntity personEntity) {
+        return personRepository.findOne(Example.of(personEntity))
                 .isPresent();
     }
 }
